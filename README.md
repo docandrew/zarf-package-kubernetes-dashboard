@@ -1,6 +1,6 @@
 # Kubernetes Dashboard Zarf Package
 
-This repository defines a Zarf package for deploying the Kubernetes Dashboard on a Kubernetes cluster.
+This repository defines a Zarf package for deploying the [Kubernetes Dashboard](https://github.com/kubernetes/dashboard) on a Kubernetes cluster.
 
 ## Prerequisites
 
@@ -37,4 +37,4 @@ zarf package deploy zarf-package-kubernetes-dashboard-amd64.tar.zst
 
 This Zarf package expects the `view` ClusterRole to be present (it is by default on RKE2). 
 It will create a read-only service account called `dashboard-viewer` with the necessary
-`ClusterRoleBinding` to the `view` role.
+`ClusterRoleBinding` to the `view` role. See [here](https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md) for more information.
