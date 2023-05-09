@@ -1,0 +1,55 @@
+kind: ZarfPackageConfig
+metadata:
+  name: kubernetes-dashboard
+  description: "Kubernetes Dashboard"
+  architecture: amd64
+
+components:
+  - name: kubernetes-dashboard
+    required: true
+    charts:
+      - name: kubernetes-dashboard
+        namespace: kubernetes-dashboard
+        url: https://kubernetes.github.io/dashboard
+        gitPath: https://github.com/kubernetes/dashboard/tree/master/charts/helm-chart/kubernetes-dashboard
+        version: 6.0.7
+    images:
+      - kubernetesui/dashboard:v2.7.0
+    actions:
+      onDeploy:
+        after:
+        - cmd: |
+            cat <<EOF | zarf tools kubectl apply -f -
+            apiVersion: v1
+            kind: ServiceAccount
+            metadata:
+              name: dashboard-viewer
+              namespace: kubernetes-dashboard
+            EOF
+          description: Create read-only service account
+
+        - cmd: |
+            cat <<EOF | zarf tools kubectl apply -f -
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRoleBinding
+            metadata:
+              name: dashboard-viewer
+            roleRef:
+              apiGroup: rbac.authorization.k8s.io
+              kind: ClusterRole
+              name: view
+            subjects:
+            - kind: ServiceAccount
+              name: dashboard-viewer
+              namespace: kubernetes-dashboard
+            EOF
+          description: Bind read-only service account to view cluster role
+        
+        - cmd: |
+            echo "When you want to access the dashboard:"
+            echo " 1. Run 'zarf tools kubectl create token dashboard-viewer -n kubernetes-dashboard'"
+            echo " 2. Copy the token printed above"
+            echo " 3. Browse to http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:443/proxy/"
+            echo " 4. Run 'zarf tools kubectl proxy' in a separate terminal"
+            echo " 5. Select 'Token' and paste the token from step 2"
+          description: Print login instructions
